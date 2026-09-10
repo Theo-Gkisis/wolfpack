@@ -27,9 +27,9 @@ jobs:
       - uses: actions/checkout@v4
 
       - id: find
-        name: Discover python image versions
+        name: Discover python image variants (incl. -dev)
         run: |
-          versions=$(find images/python -mindepth 1 -maxdepth 1 -type d -not -name "*-dev" -printf '%f\n' \
+          versions=$(find images/python -mindepth 1 -maxdepth 1 -type d -printf '%f\n' \
             | jq -R -s -c 'split("\n") | map(select(length > 0))')
           echo "Found versions: $versions"
           echo "versions=$versions" >> "$GITHUB_OUTPUT"

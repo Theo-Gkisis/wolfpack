@@ -1,0 +1,101 @@
+{
+  "SPDXID": "SPDXRef-DOCUMENT",
+  "name": "sbom-sha256:9a4986856714069dae2097087fa44fcc0cfcb4d50d7dd0f12f68bbc5f29f86fa",
+  "spdxVersion": "SPDX-2.3",
+  "creationInfo": {
+    "created": "2026-09-10T03:15:52Z",
+    "creators": [
+      "Tool: apko (v1.3.0)",
+      "Organization: Chainguard, Inc"
+    ],
+    "licenseListVersion": "3.27"
+  },
+  "dataLicense": "CC0-1.0",
+  "documentNamespace": "https://spdx.org/spdxdocs/apko/",
+  "documentDescribes": [
+    "SPDXRef-Package-sha256-9a4986856714069dae2097087fa44fcc0cfcb4d50d7dd0f12f68bbc5f29f86fa"
+  ],
+  "packages": [
+    {
+      "SPDXID": "SPDXRef-Package-sha256-9a4986856714069dae2097087fa44fcc0cfcb4d50d7dd0f12f68bbc5f29f86fa",
+      "name": "sha256:9a4986856714069dae2097087fa44fcc0cfcb4d50d7dd0f12f68bbc5f29f86fa",
+      "versionInfo": "sha256:9a4986856714069dae2097087fa44fcc0cfcb4d50d7dd0f12f68bbc5f29f86fa",
+      "filesAnalyzed": false,
+      "description": "Multi-arch image index",
+      "downloadLocation": "NOASSERTION",
+      "supplier": "Organization: Chainguard, Inc.",
+      "sourceInfo": "Generated at image build time by apko",
+      "primaryPackagePurpose": "CONTAINER",
+      "checksums": [
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "9a4986856714069dae2097087fa44fcc0cfcb4d50d7dd0f12f68bbc5f29f86fa"
+        }
+      ],
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceLocator": "pkg:oci/python@sha256:9a4986856714069dae2097087fa44fcc0cfcb4d50d7dd0f12f68bbc5f29f86fa?mediaType=application%2Fvnd.oci.image.index.v1%2Bjson",
+          "referenceType": "purl"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-Package-sha256-3d6fbb5bdcdf5c5d0baaad27fcf3cf43aae8dfcc60ba9b23a6db9faea3c6a4b1",
+      "name": "sha256:3d6fbb5bdcdf5c5d0baaad27fcf3cf43aae8dfcc60ba9b23a6db9faea3c6a4b1",
+      "versionInfo": "sha256:3d6fbb5bdcdf5c5d0baaad27fcf3cf43aae8dfcc60ba9b23a6db9faea3c6a4b1",
+      "filesAnalyzed": false,
+      "downloadLocation": "NOASSERTION",
+      "supplier": "Organization: Chainguard, Inc.",
+      "primaryPackagePurpose": "CONTAINER",
+      "checksums": [
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "3d6fbb5bdcdf5c5d0baaad27fcf3cf43aae8dfcc60ba9b23a6db9faea3c6a4b1"
+        }
+      ],
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceLocator": "pkg:oci/python@sha256:3d6fbb5bdcdf5c5d0baaad27fcf3cf43aae8dfcc60ba9b23a6db9faea3c6a4b1?arch=amd64\u0026mediaType=application%2Fvnd.oci.image.manifest.v1%2Bjson\u0026os=linux",
+          "referenceType": "purl"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-Package-https-C47C47github.comC47Theo-GkisisC47wolfpack.gitC64ebfb5dc8c2c367adb10eb1a23e737803307b629a",
+      "name": "github.com/Theo-Gkisis/wolfpack.git",
+      "versionInfo": "ebfb5dc8c2c367adb10eb1a23e737803307b629a",
+      "filesAnalyzed": false,
+      "description": "Image configuration source",
+      "downloadLocation": "https://github.com/Theo-Gkisis/wolfpack.git@ebfb5dc8c2c367adb10eb1a23e737803307b629a",
+      "supplier": "Organization: Chainguard, Inc.",
+      "primaryPackagePurpose": "SOURCE",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "ebfb5dc8c2c367adb10eb1a23e737803307b629a"
+        }
+      ],
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceLocator": "pkg:github/Theo-Gkisis/wolfpack@ebfb5dc8c2c367adb10eb1a23e737803307b629a",
+          "referenceType": "purl"
+        }
+      ]
+    }
+  ],
+  "relationships": [
+    {
+      "spdxElementId": "SPDXRef-Package-sha256-9a4986856714069dae2097087fa44fcc0cfcb4d50d7dd0f12f68bbc5f29f86fa",
+      "relationshipType": "VARIANT_OF",
+      "relatedSpdxElement": "SPDXRef-Package-sha256-3d6fbb5bdcdf5c5d0baaad27fcf3cf43aae8dfcc60ba9b23a6db9faea3c6a4b1"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-sha256-9a4986856714069dae2097087fa44fcc0cfcb4d50d7dd0f12f68bbc5f29f86fa",
+      "relationshipType": "GENERATED_FROM",
+      "relatedSpdxElement": "SPDXRef-Package-https-C47C47github.comC47Theo-GkisisC47wolfpack.gitC64ebfb5dc8c2c367adb10eb1a23e737803307b629a"
+    }
+  ]
+}
