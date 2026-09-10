@@ -1,0 +1,30 @@
+contents:
+  keyring:
+    - https://packages.wolfi.dev/os/wolfi-signing.rsa.pub
+  repositories:
+    - https://packages.wolfi.dev/os
+  packages:
+    - wolfi-baselayout
+    - ca-certificates-bundle
+    - python-3.10-base
+
+paths:
+  - path: /usr/bin/python
+    type: symlink
+    source: /usr/bin/python3.10
+    permissions: 0o755
+
+accounts:
+  groups:
+    - groupname: nonroot
+      gid: 65532
+  users:
+    - username: nonroot
+      uid: 65532
+  run-as: 65532
+
+entrypoint:
+  command: /usr/bin/python3.10
+
+archs:
+  - x86_64
