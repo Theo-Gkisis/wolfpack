@@ -7,7 +7,6 @@ contents:
     - wolfi-baselayout
     - ca-certificates-bundle
     - python-3.11-base
-    - py3.11-pip
 
 paths:
   - path: /usr/bin/python
