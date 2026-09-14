@@ -94,3 +94,77 @@ jobs:
         with:
           sarif_file: trivy-results.sarif
           category: trivy-${{ matrix.version }}
+
+      - name: Scan python:${{ matrix.version }} for README summary
+        uses: aquasecurity/trivy-action@v0.36.0
+        with:
+          image-ref: ${{ steps.publish.outputs.image }}
+          format: json
+          output: trivy-summary.json
+          severity: UNKNOWN,LOW,MEDIUM,HIGH,CRITICAL
+          exit-code: "0"
+
+      - name: Build scan summary
+        run: |
+          counts=$(jq '[.Results[]?.Vulnerabilities[]?.Severity] | group_by(.) | map({(.[0]): length}) | add // {}' trivy-summary.json)
+
+          jq -n \
+            --arg version "${{ matrix.version }}" \
+            --arg scanned_at "$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
+            --argjson counts "$counts" \
+            '{
+              version: $version,
+              scanned_at: $scanned_at,
+              critical: ($counts["CRITICAL"] // 0),
+              high: ($counts["HIGH"] // 0),
+              medium: ($counts["MEDIUM"] // 0),
+              low: ($counts["LOW"] // 0),
+              unknown: ($counts["UNKNOWN"] // 0)
+            }' > scan-summary.json
+
+      - name: Upload scan summary
+        uses: actions/upload-artifact@v4
+        with:
+          name: scan-summary-${{ matrix.version }}
+          path: scan-summary.json
+
+  update-readme:
+    needs: build
+    if: always() && needs.build.result != 'cancelled'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download all scan summaries
+        uses: actions/download-artifact@v4
+        with:
+          pattern: scan-summary-*
+          path: scan-summaries
+          merge-multiple: true
+
+      - name: Render vulnerability table
+        run: |
+          {
+            echo "| Image tag | Critical | High | Medium | Low | Unknown | Total | Last scanned (UTC) |"
+            echo "|---|---|---|---|---|---|---|---|"
+            for f in $(ls scan-summaries/*.json | sort -V); do
+              jq -r '"| \(.version) | \(.critical) | \(.high) | \(.medium) | \(.low) | \(.unknown) | \(.critical+.high+.medium+.low+.unknown) | \(.scanned_at) |"' "$f"
+            done
+          } > table.md
+
+          awk '
+            /<!-- TRIVY-TABLE:START -->/{print; while ((getline line < "table.md") > 0) print line; skip=1; next}
+            /<!-- TRIVY-TABLE:END -->/{skip=0}
+            !skip
+          ' README.md > README.md.new
+          mv README.md.new README.md
+
+      - name: Commit updated README
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add README.md
+          git diff --cached --quiet || git commit -m "chore: update vulnerability scan summary"
+          git push origin HEAD:main
