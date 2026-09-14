@@ -120,13 +120,13 @@ jobs:
               medium: ($counts["MEDIUM"] // 0),
               low: ($counts["LOW"] // 0),
               unknown: ($counts["UNKNOWN"] // 0)
-            }' > scan-summary.json
+            }' > "scan-summary-${{ matrix.version }}.json"
 
       - name: Upload scan summary
         uses: actions/upload-artifact@v4
         with:
           name: scan-summary-${{ matrix.version }}
-          path: scan-summary.json
+          path: scan-summary-${{ matrix.version }}.json
 
   update-readme:
     needs: build
