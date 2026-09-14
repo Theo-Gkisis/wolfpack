@@ -41,6 +41,7 @@ jobs:
     permissions:
       contents: read
       security-events: write
+      actions: read # required by upload-sarif to read workflow-run info on private repos
     strategy:
       fail-fast: false
       matrix:
