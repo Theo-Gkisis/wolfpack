@@ -40,8 +40,7 @@ jobs:
     permissions:
       contents: read
       security-events: write
-      actions: read 
-      id-token: write
+      actions: read
     strategy:
       fail-fast: false
       matrix:
@@ -58,18 +57,12 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      - name: Install Cosign
-        uses: sigstore/cosign-installer@v3
-    
       - name: Build & publish python:${{ matrix.version }}
         id: publish
         env:
           DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
           VERSION: ${{ matrix.version }}
         run: bash .github/scripts/build-and-publish.sh
-
-      - name: Sign image with cosign
-        run: cosign sign --yes "${{ steps.publish.outputs.digest }}"
 
       - name: Scan python:${{ matrix.version }} with Trivy
         uses: aquasecurity/trivy-action@v0.36.0
@@ -106,22 +99,6 @@ jobs:
         with:
           name: scan-summary-${{ matrix.version }}
           path: scan-summary-${{ matrix.version }}.json
-
-  cleanup-old-tags:
-    needs: [discover, build]
-    if: always() && needs.build.result != 'cancelled'
-    runs-on: ubuntu-latest
-    env:
-      KEEP: 5 
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Delete old dated tags from Docker Hub
-        env:
-          DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
-          DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
-          VERSIONS: ${{ needs.discover.outputs.versions }}
-        run: bash .github/scripts/cleanup-old-tags.sh
 
   update-readme:
     needs: build
