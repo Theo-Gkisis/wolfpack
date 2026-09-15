@@ -2,8 +2,6 @@ name: build-python-images
 
 on:
   schedule:
-    # Daily at 03:00 UTC — Wolfi is a rolling-release repo, so this picks up
-    # the latest security patches automatically.
     - cron: "0 3 * * *"
   workflow_dispatch: {}
   push:
@@ -18,7 +16,7 @@ permissions:
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: false # queue runs instead of racing on the README push
+  cancel-in-progress: false 
 
 env:
   APKO_VERSION: "1.3.0"
@@ -42,7 +40,8 @@ jobs:
     permissions:
       contents: read
       security-events: write
-      actions: read # required by upload-sarif to read workflow-run info on private repos
+      actions: read 
+      id-token: write
     strategy:
       fail-fast: false
       matrix:
@@ -59,6 +58,9 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
+      - name: Install Cosign
+        uses: sigstore/cosign-installer@v3
+    
       - name: Build & publish python:${{ matrix.version }}
         id: publish
         env:
@@ -66,14 +68,17 @@ jobs:
           VERSION: ${{ matrix.version }}
         run: bash .github/scripts/build-and-publish.sh
 
+      - name: Sign image with cosign
+        run: cosign sign --yes "${{ steps.publish.outputs.digest }}"
+
       - name: Scan python:${{ matrix.version }} with Trivy
         uses: aquasecurity/trivy-action@v0.36.0
         with:
-          image-ref: ${{ steps.publish.outputs.image }}
+          input: ${{ steps.publish.outputs.tar }}
           format: sarif
           output: trivy-results.sarif
           severity: CRITICAL,HIGH
-          exit-code: "0" # report-only: never fails the pipeline
+          exit-code: "0"
 
       - name: Upload Trivy results to the Security tab
         uses: github/codeql-action/upload-sarif@v4
@@ -85,7 +90,7 @@ jobs:
       - name: Scan python:${{ matrix.version }} for README summary
         uses: aquasecurity/trivy-action@v0.36.0
         with:
-          image-ref: ${{ steps.publish.outputs.image }}
+          input: ${{ steps.publish.outputs.tar }}
           format: json
           output: trivy-summary.json
           severity: UNKNOWN,LOW,MEDIUM,HIGH,CRITICAL
@@ -107,7 +112,7 @@ jobs:
     if: always() && needs.build.result != 'cancelled'
     runs-on: ubuntu-latest
     env:
-      KEEP: 5 # keep the last 5 dated builds per version, delete the rest
+      KEEP: 5 
     steps:
       - uses: actions/checkout@v4
 

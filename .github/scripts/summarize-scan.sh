@@ -5,7 +5,7 @@ counts=$(jq '[.Results[]?.Vulnerabilities[]?.Severity] | group_by(.) | map({(.[0
 
 jq -n \
   --arg version "$VERSION" \
-  --arg scanned_at "$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
+  --arg scanned_at "$(date -u +%Y-%m-%d)" \
   --argjson counts "$counts" \
   '{
     version: $version,
