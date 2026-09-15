@@ -2,10 +2,10 @@
 set -euo pipefail
 
 {
-  echo "| Image tag | Critical | High | Medium | Low | Unknown | Total | Last scanned (UTC) |"
-  echo "|---|---|---|---|---|---|---|---|"
+  echo "| Runtime | Image tag | Critical | High | Medium | Low | Unknown | Total | Last scanned (UTC) |"
+  echo "|---|---|---|---|---|---|---|---|---|"
   for f in $(ls scan-summaries/*.json | sort -V); do
-    jq -r '"| \(.version) | \(.critical) | \(.high) | \(.medium) | \(.low) | \(.unknown) | \(.critical+.high+.medium+.low+.unknown) | \(.scanned_at) |"' "$f"
+    jq -r '"| \(.runtime) | \(.version) | \(.critical) | \(.high) | \(.medium) | \(.low) | \(.unknown) | \(.critical+.high+.medium+.low+.unknown) | \(.scanned_at) |"' "$f"
   done
 } > table.md
 

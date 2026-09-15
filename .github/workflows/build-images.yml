@@ -1,14 +1,16 @@
-name: build-python-images
+name: build-images
 
 on:
   schedule:
+    # Daily at 03:00 UTC — Wolfi is a rolling-release repo, so this picks up
+    # the latest security patches automatically.
     - cron: "0 3 * * *"
   workflow_dispatch: {}
   push:
     branches: [main]
     paths:
-      - "images/python/**"
-      - ".github/workflows/build-python-images.yml"
+      - "images/**"
+      - ".github/workflows/build-images.yml"
       - ".github/scripts/**"
 
 permissions:
@@ -16,7 +18,7 @@ permissions:
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: false 
+  cancel-in-progress: false # queue runs instead of racing on the README push
 
 env:
   APKO_VERSION: "1.3.0"
@@ -25,17 +27,17 @@ jobs:
   discover:
     runs-on: ubuntu-latest
     outputs:
-      versions: ${{ steps.find.outputs.versions }}
+      entries: ${{ steps.find.outputs.entries }}
     steps:
       - uses: actions/checkout@v4
 
       - id: find
-        name: Discover python image variants (incl. -dev)
+        name: Discover runtime/version image variants (incl. -dev)
         run: bash .github/scripts/discover-versions.sh
 
   build:
     needs: discover
-    if: needs.discover.outputs.versions != '[]'
+    if: needs.discover.outputs.entries != '[]'
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -44,7 +46,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        version: ${{ fromJson(needs.discover.outputs.versions) }}
+        include: ${{ fromJson(needs.discover.outputs.entries) }}
     steps:
       - uses: actions/checkout@v4
 
@@ -57,30 +59,31 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      - name: Build & publish python:${{ matrix.version }}
+      - name: Build & publish ${{ matrix.runtime }}:${{ matrix.version }}
         id: publish
         env:
           DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+          RUNTIME: ${{ matrix.runtime }}
           VERSION: ${{ matrix.version }}
         run: bash .github/scripts/build-and-publish.sh
 
-      - name: Scan python:${{ matrix.version }} with Trivy
+      - name: Scan ${{ matrix.runtime }}:${{ matrix.version }} with Trivy
         uses: aquasecurity/trivy-action@v0.36.0
         with:
           input: ${{ steps.publish.outputs.tar }}
           format: sarif
           output: trivy-results.sarif
           severity: CRITICAL,HIGH
-          exit-code: "0"
+          exit-code: "0" # report-only: never fails the pipeline
 
       - name: Upload Trivy results to the Security tab
         uses: github/codeql-action/upload-sarif@v4
         if: always()
         with:
           sarif_file: trivy-results.sarif
-          category: trivy-${{ matrix.version }}
+          category: trivy-${{ matrix.runtime }}-${{ matrix.version }}
 
-      - name: Scan python:${{ matrix.version }} for README summary
+      - name: Scan ${{ matrix.runtime }}:${{ matrix.version }} for README summary
         uses: aquasecurity/trivy-action@v0.36.0
         with:
           input: ${{ steps.publish.outputs.tar }}
@@ -91,14 +94,15 @@ jobs:
 
       - name: Build scan summary
         env:
+          RUNTIME: ${{ matrix.runtime }}
           VERSION: ${{ matrix.version }}
         run: bash .github/scripts/summarize-scan.sh
 
       - name: Upload scan summary
         uses: actions/upload-artifact@v4
         with:
-          name: scan-summary-${{ matrix.version }}
-          path: scan-summary-${{ matrix.version }}.json
+          name: scan-summary-${{ matrix.runtime }}-${{ matrix.version }}
+          path: scan-summary-${{ matrix.runtime }}-${{ matrix.version }}.json
 
   update-readme:
     needs: build

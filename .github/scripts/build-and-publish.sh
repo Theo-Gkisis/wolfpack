@@ -2,13 +2,13 @@
 set -euo pipefail
 
 NAMESPACE_LC=$(echo "$DOCKERHUB_USERNAME" | tr '[:upper:]' '[:lower:]')
-IMAGE="docker.io/${NAMESPACE_LC}/wolfpack-python"
-TAR="image-${VERSION}.tar"
+IMAGE="docker.io/${NAMESPACE_LC}/wolfpack-${RUNTIME}"
+TAR="image-${RUNTIME}-${VERSION}.tar"
 
 # Build locally instead of `apko publish` so Trivy can scan the tarball
 # directly (--input) instead of pulling the image back from Docker Hub.
 apko build \
-  "images/python/${VERSION}/apko.yaml" \
+  "images/${RUNTIME}/${VERSION}/apko.yaml" \
   "${IMAGE}:${VERSION}" \
   "${TAR}" \
   --arch x86_64
