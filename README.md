@@ -77,6 +77,20 @@ Both run as a non-root user (uid/gid `65532`) by default.
 - [`.github/workflows/build-images.yml`](.github/workflows/build-images.yml) — daily CI: builds, pushes, scans with Trivy, updates the table below
 - [`.github/scripts/`](.github/scripts) — the pipeline logic, one script per step
 
+## Need a package that isn't in an image?
+
+These images ship no package manager on purpose, so you can't `apk add` anything into a running container. If you need an extra OS-level package (e.g. `tzdata`, `tini`) that isn't already included:
+
+1. Fork this repo.
+2. Add the package to the relevant `images/<runtime>/<version>/apko.yaml` (and its `-dev` counterpart if needed), under `contents.packages`.
+3. Build it yourself with [apko](https://github.com/chainguard-dev/apko):
+   ```sh
+   apko build images/<runtime>/<version>/apko.yaml <your-tag> output.tar --arch x86_64
+   docker load < output.tar
+   ```
+
+This isn't something you can request through this repo's CI — it only builds and publishes the versions already committed here. Opening a PR is welcome if you think the package belongs in the image for everyone.
+
 ## License
 
 [MIT](LICENSE)
