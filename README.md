@@ -1,5 +1,86 @@
 # wolfpack
 
+Hardened, minimal container base images built on [Wolfi](https://github.com/wolfi-dev) with [apko](https://github.com/chainguard-dev/apko) — no shell, no package manager, no unnecessary packages in production. Rebuilt daily so security patches land automatically, and every build is scanned with [Trivy](https://github.com/aquasecurity/trivy) (results below).
+
+## Images
+
+| Runtime | Docker Hub repo | Versions |
+|---|---|---|
+| Python | [`teogisis/wolfpack-python`](https://hub.docker.com/r/teogisis/wolfpack-python) | 3.10, 3.11, 3.12, 3.13, 3.14 |
+| Node.js | [`teogisis/wolfpack-node`](https://hub.docker.com/r/teogisis/wolfpack-node) | 20, 22 |
+| Java | [`teogisis/wolfpack-java`](https://hub.docker.com/r/teogisis/wolfpack-java) | 17, 21 |
+
+Each version has two tags:
+
+| Tag | Contains | Use for |
+|---|---|---|
+| `<version>` | Runtime + CA certs only. No shell, no package manager. | Production |
+| `<version>-dev` | Same, plus the language's package manager (`pip` / `npm` / `maven`) and a shell (`busybox`). | Builder stage |
+
+Tags are overwritten with the newest build every day — there is no `latest` tag, so pick a version explicitly.
+
+## Usage
+
+Since production images have no shell or package manager, install dependencies in a `-dev` builder stage and copy them into the hardened final image.
+
+**Python:**
+
+```dockerfile
+FROM teogisis/wolfpack-python:3.13-dev AS builder
+WORKDIR /app
+COPY requirements.txt .
+RUN python3.13 -m pip install --no-cache-dir --target=/app/deps -r requirements.txt
+
+FROM teogisis/wolfpack-python:3.13
+WORKDIR /app
+COPY --from=builder /app/deps /app/deps
+COPY app.py .
+ENV PYTHONPATH=/app/deps
+ENTRYPOINT ["/usr/bin/python3.13", "/app/app.py"]
+```
+
+**Node.js:**
+
+```dockerfile
+FROM teogisis/wolfpack-node:22-dev AS builder
+WORKDIR /app
+COPY package*.json .
+RUN npm ci --omit=dev
+
+FROM teogisis/wolfpack-node:22
+WORKDIR /app
+COPY --from=builder /app/node_modules ./node_modules
+COPY . .
+ENTRYPOINT ["/usr/bin/node", "index.js"]
+```
+
+**Java:**
+
+```dockerfile
+FROM teogisis/wolfpack-java:21-dev AS builder
+WORKDIR /app
+COPY pom.xml .
+COPY src ./src
+RUN mvn -B package -DskipTests
+
+FROM teogisis/wolfpack-java:21
+WORKDIR /app
+COPY --from=builder /app/target/app.jar app.jar
+ENTRYPOINT ["/usr/bin/java", "-jar", "app.jar"]
+```
+
+Both run as a non-root user (uid/gid `65532`) by default.
+
+## How images are built
+
+- [`images/<runtime>/<version>/apko.yaml`](images) — the apko config for each image
+- [`.github/workflows/build-images.yml`](.github/workflows/build-images.yml) — daily CI: builds, pushes, scans with Trivy, updates the table below
+- [`.github/scripts/`](.github/scripts) — the pipeline logic, one script per step
+
+## License
+
+[MIT](LICENSE)
+
 ## Vulnerability scan results
 
 Updated automatically by the daily build pipeline (Trivy).
