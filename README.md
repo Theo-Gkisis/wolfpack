@@ -88,6 +88,10 @@ Updated automatically by the daily build pipeline (Trivy).
 <!-- TRIVY-TABLE:START -->
 | Runtime | Image tag | Critical | High | Medium | Low | Unknown | Total | Last scanned (UTC) |
 |---|---|---|---|---|---|---|---|---|
+| java | 17 | 0 | 2 | 6 | 1 | 0 | 9 | 2026-09-15 |
+| java | 17-dev | 0 | 0 | 1 | 0 | 0 | 1 | 2026-09-15 |
+| java | 21 | 0 | 7 | 16 | 4 | 0 | 27 | 2026-09-15 |
+| java | 21-dev | 0 | 0 | 1 | 0 | 0 | 1 | 2026-09-15 |
 | node | 20 | 0 | 0 | 1 | 0 | 0 | 1 | 2026-09-15 |
 | node | 20-dev | 0 | 0 | 1 | 0 | 0 | 1 | 2026-09-15 |
 | node | 22 | 0 | 0 | 1 | 0 | 0 | 1 | 2026-09-15 |
