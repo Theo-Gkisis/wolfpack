@@ -26,12 +26,12 @@ Chainguard/Wolfi already publish hardened images for free — but the free tier 
 
 ## Images
 
-| Runtime | Docker Hub repo | Versions |
+| Runtime | Docker Hub | Versions |
 |---|---|---|
-| Python | [`teogisis/wolfpack-python`](https://hub.docker.com/r/teogisis/wolfpack-python) | 3.10, 3.11, 3.12, 3.13, 3.14 |
-| Node.js | [`teogisis/wolfpack-node`](https://hub.docker.com/r/teogisis/wolfpack-node) | 20, 22 |
-| Java | [`teogisis/wolfpack-java`](https://hub.docker.com/r/teogisis/wolfpack-java) | 17, 21 |
-| .NET | [`teogisis/wolfpack-dotnet`](https://hub.docker.com/r/teogisis/wolfpack-dotnet) | 8, 10 |
+| Python | [Docker Hub](https://hub.docker.com/r/teogisis/wolfpack-python) | 3.10, 3.11, 3.12, 3.13, 3.14 |
+| Node.js | [Docker Hub](https://hub.docker.com/r/teogisis/wolfpack-node) | 20, 22 |
+| Java | [Docker Hub](https://hub.docker.com/r/teogisis/wolfpack-java) | 17, 21 |
+| .NET | [Docker Hub](https://hub.docker.com/r/teogisis/wolfpack-dotnet) | 8, 10 |
 
 Each version has two tags:
 
@@ -66,16 +66,16 @@ Both variants run as a non-root user (uid/gid `65532`) by default.
 
 Everything lives in this repo and runs on a schedule — nothing is built by hand:
 
-1. **Discover** ([`discover-versions.sh`](.github/scripts/discover-versions.sh)) scans `images/<runtime>/<version>/` and turns every folder it finds into a build target — adding a runtime or version is just adding a folder, no pipeline changes needed.
-2. **Build, scan, and publish** ([`build-and-publish.sh`](.github/scripts/build-and-publish.sh)) runs once per target, in parallel: apko builds the image from its `apko.yaml`, [Trivy](https://github.com/aquasecurity/trivy) scans it for CVEs, and the image is pushed to Docker Hub.
+1. **Discover** ([source](.github/scripts/discover-versions.sh)) scans `images/<runtime>/<version>/` and turns every folder it finds into a build target — adding a runtime or version is just adding a folder, no pipeline changes needed.
+2. **Build, scan, and publish** ([source](.github/scripts/build-and-publish.sh)) runs once per target, in parallel: apko builds the image from its `apko.yaml`, [Trivy](https://github.com/aquasecurity/trivy) scans it for CVEs, and the image is pushed to Docker Hub.
 3. **Publish SBOMs** collects the SPDX SBOM apko generates for every image and deploys them as a static site via GitHub Pages.
 4. **Update this README** collects every scan result and rewrites the tables below.
 
 Source files:
 
-- [`images/<runtime>/<version>/apko.yaml`](images) — the apko config for each image
-- [`.github/workflows/build-images.yml`](.github/workflows/build-images.yml) — the daily pipeline
-- [`.github/scripts/`](.github/scripts) — the pipeline logic, one script per step
+- [Image configs](images) — the apko config for each image
+- [Workflow file](.github/workflows/build-images.yml) — the daily pipeline
+- [Scripts folder](.github/scripts) — the pipeline logic, one script per step
 
 ## Need a package that isn't in an image?
 
@@ -93,7 +93,7 @@ This isn't something you can request through this repo's CI — it only builds a
 
 ## Software Bill of Materials (SBOM)
 
-Every image ships with an auto-generated SPDX SBOM, regenerated daily and published at **[theo-gkisis.github.io/wolfpack](https://theo-gkisis.github.io/wolfpack/)**.
+Every image ships with an auto-generated SPDX SBOM, regenerated daily and published **[here](https://theo-gkisis.github.io/wolfpack/)**.
 
 ## Vulnerability scan results
 
