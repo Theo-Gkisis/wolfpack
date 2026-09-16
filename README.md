@@ -7,9 +7,22 @@ Hardened, minimal container base images for Python, Node.js, Java, and .NET — 
 
 Rebuilt **every day** so upstream security patches land automatically, without anyone filing a "please bump the base image" ticket. Every build is scanned with [Trivy](https://github.com/aquasecurity/trivy) and ships with an auto-generated SBOM — see the links at the bottom of this page.
 
+## Overview
+
+WolfPack is a self-hosted build pipeline that produces hardened container base images for four language runtimes — Python, Node.js, Java, and .NET — instead of relying on a third party's pre-built images. It currently maintains **22 image variants** across 11 versions, each rebuilt from scratch every day.
+
+Every image is built the same way regardless of language: take Wolfi's minimal runtime package (and only that), add CA certificates, run as a non-root user, and ship it with no shell and no package manager. A matching `-dev` variant adds exactly what's needed to build software — the language's package manager or SDK, plus a minimal shell — and nothing else. Nothing in this repo is hand-built; one GitHub Actions pipeline discovers, builds, scans, and publishes every image, and keeps this page's tables current.
+
 ## Why this exists
 
 Chainguard/Wolfi already publish hardened images for free — but the free tier only exposes a rolling `:latest`-style tag, with no way to pin a specific historical build. Self-hosting the build means keeping that control without paying for it, and having full visibility into exactly what's inside every image.
+
+## Design principles
+
+- **Hardened by default, usable by design.** Production images can't run a package manager or a shell — there's nothing for an attacker to reach for after landing inside one. The `-dev` variant exists purely so a multi-stage Dockerfile has somewhere to compile or install dependencies before copying the result into the hardened image.
+- **One runtime, one registry namespace.** Python, Node.js, Java, and .NET each publish to their own Docker Hub repository (`wolfpack-python`, `wolfpack-node`, ...), so a tag never has to encode which language it belongs to.
+- **No signing, no tag retention.** Both were built and then removed: image signing added real complexity for a security guarantee this project's size didn't need, and automated tag cleanup required holding a delete-scoped Docker Hub token, which is more standing risk than the tag clutter it solved. Every image now publishes under a single floating tag per version, overwritten daily.
+- **Automate what a human would forget.** Rebuilding for security patches, scanning every image, generating SBOMs, and keeping this README's tables in sync are all handled by the same daily pipeline run — none of it depends on someone remembering to do it.
 
 ## Images
 
@@ -31,9 +44,7 @@ Tags are overwritten with the newest build every day — there is no `latest` ta
 
 ## Usage
 
-Since production images have no shell or package manager, install dependencies in a `-dev` builder stage and copy them into the hardened final image.
-
-**Python:**
+Since production images have no shell or package manager, install dependencies in a `-dev` builder stage and copy them into the hardened final image. The same pattern applies to every runtime — only the package manager and entrypoint change.
 
 ```dockerfile
 FROM teogisis/wolfpack-python:3.13-dev AS builder
@@ -47,50 +58,6 @@ COPY --from=builder /app/deps /app/deps
 COPY app.py .
 ENV PYTHONPATH=/app/deps
 ENTRYPOINT ["/usr/bin/python3.13", "/app/app.py"]
-```
-
-**Node.js:**
-
-```dockerfile
-FROM teogisis/wolfpack-node:22-dev AS builder
-WORKDIR /app
-COPY package*.json .
-RUN npm ci --omit=dev
-
-FROM teogisis/wolfpack-node:22
-WORKDIR /app
-COPY --from=builder /app/node_modules ./node_modules
-COPY . .
-ENTRYPOINT ["/usr/bin/node", "index.js"]
-```
-
-**Java:**
-
-```dockerfile
-FROM teogisis/wolfpack-java:21-dev AS builder
-WORKDIR /app
-COPY pom.xml .
-COPY src ./src
-RUN mvn -B package -DskipTests
-
-FROM teogisis/wolfpack-java:21
-WORKDIR /app
-COPY --from=builder /app/target/app.jar app.jar
-ENTRYPOINT ["/usr/bin/java", "-jar", "app.jar"]
-```
-
-**.NET:**
-
-```dockerfile
-FROM teogisis/wolfpack-dotnet:8-dev AS builder
-WORKDIR /app
-COPY . .
-RUN dotnet publish -c Release -o /app/publish
-
-FROM teogisis/wolfpack-dotnet:8
-WORKDIR /app
-COPY --from=builder /app/publish .
-ENTRYPOINT ["/usr/bin/dotnet", "myapp.dll"]
 ```
 
 Both variants run as a non-root user (uid/gid `65532`) by default.
