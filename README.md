@@ -3,15 +3,15 @@
 [![build-images](https://github.com/Theo-Gkisis/wolfpack/actions/workflows/build-images.yml/badge.svg)](https://github.com/Theo-Gkisis/wolfpack/actions/workflows/build-images.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
-Hardened, minimal container base images for Python, Node.js, Java, and .NET — built on [Wolfi](https://github.com/wolfi-dev) with [apko](https://github.com/chainguard-dev/apko). No distro, no shell, no package manager in production, and nothing an attacker could use to pivot after landing inside a container.
-
-Rebuilt **every day** so upstream security patches land automatically, without anyone filing a "please bump the base image" ticket. Every build is scanned with [Trivy](https://github.com/aquasecurity/trivy) and ships with an auto-generated SBOM — see the links at the bottom of this page.
+Hardened, minimal container base images for Python, Node.js, Java, and .NET — no shell, no package manager, nothing left for an attacker to reach for once they're inside.
 
 ## Overview
 
-WolfPack is a self-hosted build pipeline that produces hardened container base images for four language runtimes — Python, Node.js, Java, and .NET — instead of relying on a third party's pre-built images. It currently maintains **22 image variants** across 11 versions, each rebuilt from scratch every day.
+WolfPack is a self-hosted build pipeline that produces hardened container base images for four language runtimes, built on [Wolfi](https://github.com/wolfi-dev) with [apko](https://github.com/chainguard-dev/apko) instead of relying on a third party's pre-built images. It currently maintains **22 image variants** across 11 versions.
 
-Every image is built the same way regardless of language: take Wolfi's minimal runtime package (and only that), add CA certificates, run as a non-root user, and ship it with no shell and no package manager. A matching `-dev` variant adds exactly what's needed to build software — the language's package manager or SDK, plus a minimal shell — and nothing else. Nothing in this repo is hand-built; one GitHub Actions pipeline discovers, builds, scans, and publishes every image, and keeps this page's tables current.
+Every image is built the same way regardless of language: take Wolfi's minimal runtime package (and only that), add CA certificates, run as a non-root user, and ship it with no shell and no package manager. A matching `-dev` variant adds exactly what's needed to build software — the language's package manager or SDK, plus a minimal shell — and nothing else.
+
+Nothing here is hand-built. One GitHub Actions pipeline rebuilds every image from scratch **every day**, so upstream security patches land automatically — no one has to file a "please bump the base image" ticket. Each build is scanned with [Trivy](https://github.com/aquasecurity/trivy), ships with an auto-generated SBOM, and updates this page's tables — see the links at the bottom of this page.
 
 ## Why this exists
 
