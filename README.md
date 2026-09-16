@@ -1,6 +1,15 @@
 # wolfpack
 
-Hardened, minimal container base images built on [Wolfi](https://github.com/wolfi-dev) with [apko](https://github.com/chainguard-dev/apko) — no shell, no package manager, no unnecessary packages in production. Rebuilt daily so security patches land automatically, and every build is scanned with [Trivy](https://github.com/aquasecurity/trivy) (results below).
+[![build-images](https://github.com/Theo-Gkisis/wolfpack/actions/workflows/build-images.yml/badge.svg)](https://github.com/Theo-Gkisis/wolfpack/actions/workflows/build-images.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+
+Hardened, minimal container base images for Python, Node.js, and Java — built on [Wolfi](https://github.com/wolfi-dev) with [apko](https://github.com/chainguard-dev/apko). No distro, no shell, no package manager in production, and nothing an attacker could use to pivot after landing inside a container.
+
+Rebuilt **every day** so upstream security patches land automatically, without anyone filing a "please bump the base image" ticket. Every build is scanned with [Trivy](https://github.com/aquasecurity/trivy) and ships with an auto-generated SBOM — see the links at the bottom of this page.
+
+## Why this exists
+
+Chainguard/Wolfi already publish hardened images for free — but the free tier only exposes a rolling `:latest`-style tag, with no way to pin a specific historical build. Self-hosting the build means keeping that control without paying for it, and having full visibility into exactly what's inside every image.
 
 ## Images
 
@@ -69,12 +78,21 @@ COPY --from=builder /app/target/app.jar app.jar
 ENTRYPOINT ["/usr/bin/java", "-jar", "app.jar"]
 ```
 
-Both run as a non-root user (uid/gid `65532`) by default.
+Both variants run as a non-root user (uid/gid `65532`) by default.
 
 ## How images are built
 
+Everything lives in this repo and runs on a schedule — nothing is built by hand:
+
+1. **Discover** ([`discover-versions.sh`](.github/scripts/discover-versions.sh)) scans `images/<runtime>/<version>/` and turns every folder it finds into a build target — adding a runtime or version is just adding a folder, no pipeline changes needed.
+2. **Build, scan, and publish** ([`build-and-publish.sh`](.github/scripts/build-and-publish.sh)) runs once per target, in parallel: apko builds the image from its `apko.yaml`, [Trivy](https://github.com/aquasecurity/trivy) scans it for CVEs, and the image is pushed to Docker Hub.
+3. **Publish SBOMs** collects the SPDX SBOM apko generates for every image and deploys them as a static site via GitHub Pages.
+4. **Update this README** collects every scan result and rewrites the tables below.
+
+Source files:
+
 - [`images/<runtime>/<version>/apko.yaml`](images) — the apko config for each image
-- [`.github/workflows/build-images.yml`](.github/workflows/build-images.yml) — daily CI: builds, pushes, scans with Trivy, updates the table below
+- [`.github/workflows/build-images.yml`](.github/workflows/build-images.yml) — the daily pipeline
 - [`.github/scripts/`](.github/scripts) — the pipeline logic, one script per step
 
 ## Need a package that isn't in an image?
@@ -91,33 +109,50 @@ These images ship no package manager on purpose, so you can't `apk add` anything
 
 This isn't something you can request through this repo's CI — it only builds and publishes the versions already committed here. Opening a PR is welcome if you think the package belongs in the image for everyone.
 
+## Software Bill of Materials (SBOM)
+
+Every image ships with an auto-generated SPDX SBOM, regenerated daily and published at **[theo-gkisis.github.io/wolfpack](https://theo-gkisis.github.io/wolfpack/)**.
+
 ## License
 
 [MIT](LICENSE)
 
 ## Vulnerability scan results
 
-Updated automatically by the daily build pipeline (Trivy).
+Updated automatically by the daily build pipeline ([Trivy](https://github.com/aquasecurity/trivy)), broken down by runtime.
 
 <!-- TRIVY-TABLE:START -->
-| Runtime | Image tag | Critical | High | Medium | Low | Unknown | Total | Last scanned (UTC) |
-|---|---|---|---|---|---|---|---|---|
-| java | 17 | 0 | 2 | 6 | 1 | 0 | 9 | 2026-09-16 |
-| java | 17-dev | 0 | 0 | 1 | 0 | 0 | 1 | 2026-09-16 |
-| java | 21 | 0 | 7 | 16 | 4 | 0 | 27 | 2026-09-16 |
-| java | 21-dev | 0 | 0 | 1 | 0 | 0 | 1 | 2026-09-16 |
-| node | 20 | 0 | 0 | 1 | 0 | 0 | 1 | 2026-09-16 |
-| node | 20-dev | 0 | 0 | 1 | 0 | 0 | 1 | 2026-09-16 |
-| node | 22 | 0 | 0 | 1 | 0 | 0 | 1 | 2026-09-16 |
-| node | 22-dev | 0 | 0 | 1 | 0 | 0 | 1 | 2026-09-16 |
-| python | 3.10 | 0 | 0 | 1 | 0 | 0 | 1 | 2026-09-16 |
-| python | 3.10-dev | 0 | 0 | 1 | 0 | 0 | 1 | 2026-09-16 |
-| python | 3.11 | 0 | 0 | 1 | 0 | 0 | 1 | 2026-09-16 |
-| python | 3.11-dev | 0 | 0 | 1 | 0 | 0 | 1 | 2026-09-16 |
-| python | 3.12 | 0 | 0 | 1 | 0 | 0 | 1 | 2026-09-16 |
-| python | 3.12-dev | 0 | 0 | 1 | 0 | 0 | 1 | 2026-09-16 |
-| python | 3.13 | 0 | 0 | 1 | 0 | 0 | 1 | 2026-09-16 |
-| python | 3.13-dev | 0 | 0 | 1 | 0 | 0 | 1 | 2026-09-16 |
-| python | 3.14 | 0 | 0 | 1 | 0 | 0 | 1 | 2026-09-16 |
-| python | 3.14-dev | 0 | 0 | 1 | 0 | 0 | 1 | 2026-09-16 |
+### Java
+
+| Image tag | Critical | High | Medium | Low | Unknown | Total | Last scanned (UTC) |
+|---|---|---|---|---|---|---|---|
+| 17 | 0 | 2 | 6 | 1 | 0 | 9 | 2026-09-16 |
+| 17-dev | 0 | 0 | 1 | 0 | 0 | 1 | 2026-09-16 |
+| 21 | 0 | 7 | 16 | 4 | 0 | 27 | 2026-09-16 |
+| 21-dev | 0 | 0 | 1 | 0 | 0 | 1 | 2026-09-16 |
+
+### Node.js
+
+| Image tag | Critical | High | Medium | Low | Unknown | Total | Last scanned (UTC) |
+|---|---|---|---|---|---|---|---|
+| 20 | 0 | 0 | 1 | 0 | 0 | 1 | 2026-09-16 |
+| 20-dev | 0 | 0 | 1 | 0 | 0 | 1 | 2026-09-16 |
+| 22 | 0 | 0 | 1 | 0 | 0 | 1 | 2026-09-16 |
+| 22-dev | 0 | 0 | 1 | 0 | 0 | 1 | 2026-09-16 |
+
+### Python
+
+| Image tag | Critical | High | Medium | Low | Unknown | Total | Last scanned (UTC) |
+|---|---|---|---|---|---|---|---|
+| 3.10 | 0 | 0 | 1 | 0 | 0 | 1 | 2026-09-16 |
+| 3.10-dev | 0 | 0 | 1 | 0 | 0 | 1 | 2026-09-16 |
+| 3.11 | 0 | 0 | 1 | 0 | 0 | 1 | 2026-09-16 |
+| 3.11-dev | 0 | 0 | 1 | 0 | 0 | 1 | 2026-09-16 |
+| 3.12 | 0 | 0 | 1 | 0 | 0 | 1 | 2026-09-16 |
+| 3.12-dev | 0 | 0 | 1 | 0 | 0 | 1 | 2026-09-16 |
+| 3.13 | 0 | 0 | 1 | 0 | 0 | 1 | 2026-09-16 |
+| 3.13-dev | 0 | 0 | 1 | 0 | 0 | 1 | 2026-09-16 |
+| 3.14 | 0 | 0 | 1 | 0 | 0 | 1 | 2026-09-16 |
+| 3.14-dev | 0 | 0 | 1 | 0 | 0 | 1 | 2026-09-16 |
+
 <!-- TRIVY-TABLE:END -->
