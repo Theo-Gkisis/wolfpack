@@ -133,6 +133,15 @@ Every image ships with an auto-generated SPDX SBOM, regenerated daily and publis
 Updated automatically by the daily build pipeline ([Trivy](https://github.com/aquasecurity/trivy)), broken down by runtime.
 
 <!-- TRIVY-TABLE:START -->
+### dotnet
+
+| Image tag | Critical | High | Medium | Low | Unknown | Total | Last scanned (UTC) |
+|---|---|---|---|---|---|---|---|
+| 8 | 2 | 6 | 3 | 0 | 0 | 11 | 2026-09-16 |
+| 8-dev | 7 | 21 | 8 | 0 | 0 | 36 | 2026-09-16 |
+| 10 | 0 | 0 | 1 | 0 | 0 | 1 | 2026-09-16 |
+| 10-dev | 0 | 0 | 1 | 0 | 0 | 1 | 2026-09-16 |
+
 ### Java
 
 | Image tag | Critical | High | Medium | Low | Unknown | Total | Last scanned (UTC) |
