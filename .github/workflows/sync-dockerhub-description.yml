@@ -4,13 +4,24 @@ on:
   push:
     branches: [main]
     paths:
-      - "DOCKERHUB.md"
+      - "docker-hub/**"
       - ".github/workflows/sync-dockerhub-description.yml"
   workflow_dispatch: {}
 
 jobs:
   sync:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        include:
+          - runtime: python
+            short-description: "🐺 Hardened Wolfi/apko Python images (3.10-3.14) — no shell/pip in production, daily rebuilds."
+          - runtime: node
+            short-description: "🐺 Hardened Wolfi/apko Node.js images (20, 22) — no shell/npm in production, daily rebuilds."
+          - runtime: java
+            short-description: "🐺 Hardened Wolfi/apko Java images (17, 21) — no shell/JDK in production, daily rebuilds."
+          - runtime: dotnet
+            short-description: "🐺 Hardened Wolfi/apko .NET images (8, 10) — no shell/SDK in production, daily rebuilds."
     steps:
       - uses: actions/checkout@v4
 
@@ -19,6 +30,6 @@ jobs:
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
-          repository: teogisis/wolfpack-python
-          short-description: "🐺 Hardened Wolfi/apko Python images (3.10-3.14) — no shell/pip in production, daily rebuilds."
-          readme-filepath: ./DOCKERHUB.md
+          repository: teogisis/wolfpack-${{ matrix.runtime }}
+          short-description: ${{ matrix.short-description }}
+          readme-filepath: ./docker-hub/${{ matrix.runtime }}.md

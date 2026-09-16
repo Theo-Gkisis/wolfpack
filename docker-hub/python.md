@@ -2,7 +2,7 @@
 
 Hardened, minimal Python container images built on [Wolfi](https://github.com/wolfi-dev) with [apko](https://github.com/chainguard-dev/apko) — no distro, no shell, no package manager in production.
 
-Rebuilt **daily** from Wolfi's rolling-release package repo, so security patches land automatically. Every build is scanned with [Trivy](https://github.com/aquasecurity/trivy); results are tracked on [GitHub](https://github.com/Theo-Gkisis/wolfpack).
+Rebuilt **daily** from Wolfi's rolling-release package repo, so security patches land automatically. Every build is scanned with [Trivy](https://github.com/aquasecurity/trivy); results and an auto-generated SBOM are tracked on [GitHub](https://github.com/Theo-Gkisis/wolfpack).
 
 ## Tags
 
@@ -35,7 +35,11 @@ ENV PYTHONPATH=/app/deps
 ENTRYPOINT ["/usr/bin/python3.13", "/app/app.py"]
 ```
 
-Both images run as a non-root user (uid/gid `65532`) by default.
+Runs as a non-root user (uid/gid `65532`) by default.
+
+## Also in this family
+
+[`wolfpack-node`](https://hub.docker.com/r/teogisis/wolfpack-node) · [`wolfpack-java`](https://hub.docker.com/r/teogisis/wolfpack-java) · [`wolfpack-dotnet`](https://hub.docker.com/r/teogisis/wolfpack-dotnet)
 
 ## Source
 
