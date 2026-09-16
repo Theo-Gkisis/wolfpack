@@ -10,6 +10,10 @@ contents:
     - openjdk-21-default-jvm
     - zlib
 
+environment:
+  JAVA_HOME: /usr/lib/jvm/default-jvm
+  LANG: en_US.UTF-8
+
 entrypoint:
   command: /usr/bin/java
 

@@ -10,6 +10,10 @@ contents:
     - maven-3.9
     - busybox
 
+environment:
+  JAVA_HOME: /usr/lib/jvm/default-jvm
+  LANG: en_US.UTF-8
+
 entrypoint:
   command: /bin/sh
 

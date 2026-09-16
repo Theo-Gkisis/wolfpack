@@ -104,6 +104,45 @@ jobs:
           name: scan-summary-${{ matrix.runtime }}-${{ matrix.version }}
           path: scan-summary-${{ matrix.runtime }}-${{ matrix.version }}.json
 
+      - name: Upload SBOM
+        uses: actions/upload-artifact@v4
+        with:
+          name: sbom-${{ matrix.runtime }}-${{ matrix.version }}
+          path: ${{ steps.publish.outputs.sbom }}
+
+  publish-sboms:
+    needs: [discover, build]
+    if: always() && needs.build.result != 'cancelled'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download all SBOMs
+        uses: actions/download-artifact@v4
+        with:
+          pattern: sbom-*
+          path: sbom-files
+          merge-multiple: true
+
+      - name: Build SBOM index page
+        run: bash .github/scripts/render-sbom-index.sh
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v5
+        with:
+          path: public
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v5
+
   update-readme:
     needs: build
     if: always() && needs.build.result != 'cancelled'

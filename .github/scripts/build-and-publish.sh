@@ -20,4 +20,10 @@ LOADED_REF=$(docker load < "${TAR}" | sed -n 's/^Loaded image: //p')
 docker tag "${LOADED_REF}" "${IMAGE}:${VERSION}"
 docker push "${IMAGE}:${VERSION}"
 
+# apko already generates an SPDX SBOM as a side effect of the build above;
+# just give it a name that's unique across the whole matrix.
+SBOM="sbom-${RUNTIME}-${VERSION}.spdx.json"
+mv sbom-x86_64.spdx.json "${SBOM}"
+
 echo "tar=${TAR}" >> "$GITHUB_OUTPUT"
+echo "sbom=${SBOM}" >> "$GITHUB_OUTPUT"

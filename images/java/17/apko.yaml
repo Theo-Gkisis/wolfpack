@@ -9,6 +9,10 @@ contents:
     - openjdk-17-jre-base
     - openjdk-17-default-jvm
 
+environment:
+  JAVA_HOME: /usr/lib/jvm/default-jvm
+  LANG: en_US.UTF-8
+
 entrypoint:
   command: /usr/bin/java
 
