@@ -107,7 +107,7 @@ Updated automatically by the daily build pipeline ([Trivy](https://github.com/aq
 | Image tag | Critical | High | Medium | Low | Unknown | Total | Last scanned (UTC) |
 |---|---|---|---|---|---|---|---|
 | 8 | 2 | 6 | 2 | 0 | 0 | 10 | 2026-10-12 |
-| 8-dev | 1 | 3 | 1 | 0 | 0 | 5 | 2026-10-12 |
+| 8-dev | 7 | 21 | 7 | 0 | 0 | 35 | 2026-10-12 |
 | 10 | 0 | 0 | 0 | 0 | 0 | 0 | 2026-10-12 |
 | 10-dev | 0 | 0 | 0 | 0 | 0 | 0 | 2026-10-12 |
 
@@ -115,7 +115,7 @@ Updated automatically by the daily build pipeline ([Trivy](https://github.com/aq
 
 | Image tag | Critical | High | Medium | Low | Unknown | Total | Last scanned (UTC) |
 |---|---|---|---|---|---|---|---|
-| 17 | 0 | 2 | 5 | 1 | 0 | 8 | 2026-10-12 |
+| 17 | 0 | 0 | 0 | 0 | 0 | 0 | 2026-10-12 |
 | 17-dev | 0 | 0 | 0 | 0 | 0 | 0 | 2026-10-12 |
 | 21 | 0 | 7 | 15 | 4 | 0 | 26 | 2026-10-12 |
 | 21-dev | 0 | 0 | 0 | 0 | 0 | 0 | 2026-10-12 |
@@ -128,6 +128,15 @@ Updated automatically by the daily build pipeline ([Trivy](https://github.com/aq
 | 20-dev | 0 | 0 | 0 | 0 | 0 | 0 | 2026-10-12 |
 | 22 | 0 | 0 | 0 | 0 | 0 | 0 | 2026-10-12 |
 | 22-dev | 0 | 0 | 0 | 0 | 0 | 0 | 2026-10-12 |
+
+### php
+
+| Image tag | Critical | High | Medium | Low | Unknown | Total | Last scanned (UTC) |
+|---|---|---|---|---|---|---|---|
+| 8.3 | 0 | 0 | 0 | 0 | 0 | 0 | 2026-10-12 |
+| 8.3-dev | 0 | 0 | 0 | 0 | 0 | 0 | 2026-10-12 |
+| 8.4 | 0 | 0 | 0 | 0 | 0 | 0 | 2026-10-12 |
+| 8.4-dev | 0 | 0 | 0 | 0 | 0 | 0 | 2026-10-12 |
 
 ### Python
 
