@@ -33,6 +33,8 @@ Chainguard/Wolfi already publish hardened images for free — but the free tier 
 | Java | [Docker Hub](https://hub.docker.com/r/teogisis/wolfpack-java) | 17, 21 |
 | .NET | [Docker Hub](https://hub.docker.com/r/teogisis/wolfpack-dotnet) | 8, 10 |
 
+This list grows over time. Since the pipeline discovers build targets from the `images/` folder structure (see [Design principles](#design-principles)), adding a new runtime or version is a matter of adding a folder and an `apko.yaml` — no changes to the CI itself. Ruby and PHP are the next likely candidates, since Wolfi packages both with the same minimal/full split used here.
+
 Each version has two tags:
 
 | Tag | Contains | Use for |
